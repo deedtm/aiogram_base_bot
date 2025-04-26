@@ -1,0 +1,5 @@
+{
+    "base": "❗️  An error has occurred:\n\n<pre>{}</pre>",
+    "no_data": "😢  I don't have such information",
+    "retry": "🔄  Try again, please"
+}
