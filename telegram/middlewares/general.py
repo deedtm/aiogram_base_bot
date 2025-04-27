@@ -6,6 +6,7 @@ from aiogram import BaseMiddleware
 from aiogram.exceptions import TelegramAPIError
 from aiogram.types import Message, CallbackQuery, Update
 
+from database.utils import add_user
 from templates.enums.middlewares import Middlewares as tmpl_mw
 from templates.enums.exceptions import Exceptions as tmpl_ex
 
@@ -26,6 +27,8 @@ class GeneralMW(BaseMiddleware):
         err = None
         ok = False
         try:
+            if isinstance(event, Message):
+                await add_user(event.from_user)
             await handler(event, data)
             ok = True
         except TelegramAPIError as e:
@@ -50,7 +53,7 @@ class GeneralMW(BaseMiddleware):
     ) -> Any:
         is_callback = isinstance(event, CallbackQuery)
         wmsg = await event.answer(tmpl_mw.wait_message)
-
+        
         if not is_callback:
             params = data["handler"].params
             for lit in BotEnums.WAIT_MESSAGE_LITERALS:

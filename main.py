@@ -10,7 +10,7 @@ from telegram.objects import router
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    disable_loggers("aiogram")
+    disable_loggers("aiogram", "aiosqlite")
 
     default = DefaultBotProperties(
         parse_mode=PARSE_MODE, link_preview_is_disabled=DISABLE_LINK_PREVIEW

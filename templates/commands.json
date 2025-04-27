@@ -1,5 +1,10 @@
 {
     "start": "🤖  Hello! I'm just a template bot for developers\n\n🔗  <a href=\"https://github.com/deedtm/aiogram_base_bot\">Source code</a>\n⭐️  Please star the project if you liked the bot",
+    "database": "📊  Here's your information saved in the database:\n\n{}",
+    "removeme": {
+        "general": "❓  Are you sure you want to remove your data from the database?\n\n😴  Ignore this message, if you don't",
+        "yes": "✅  Your data has been removed from the database.\n\n❗️  You will be added to database again if you send any message to me"
+    },
     "keyboard": {
         "general": "⌨️  You can use the keyboard below to learn information about yourself",
         "id": "🆔  Your ID is <code>{}</code>",

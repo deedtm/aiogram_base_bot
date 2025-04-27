@@ -8,7 +8,8 @@ from templates.enums.commands import Commands as tmpl
 from templates.enums.exceptions import Exceptions as tmpl_ex
 
 from ...objects import router
-from ...keyboards.inline.inline_keyboard import general, back
+from ...keyboards.inline.inline_keyboard import general
+from ...keyboards.inline.utils import back_kb as back
 from ...keyboards.inline.types.extended_callback import ExtendedCallback
 
 # from .log import logger as l
@@ -23,7 +24,7 @@ async def ik_handler(msg: Message, wmsg: Optional[Message] = None):
 
 
 @router.callback_query(F.data.split("<")[-1].startswith("ik"))
-async def ik_cb(q: CallbackQuery):
+async def ik_callback(q: CallbackQuery):
     msg, cbd = q.message, q.data.split("<")[-1].split(":", 1)[1]
     bc = ExtendedCallback("ik:general", "General", BP)
 
