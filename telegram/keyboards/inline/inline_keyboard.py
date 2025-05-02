@@ -2,7 +2,7 @@ from config.telegram import BACK_PREFIX as BP
 
 from .types.ibutton import IButton
 from .types.extended_callback import ExtendedCallback as EC
-from .utils import build
+from .__utils import build
 
 
 def general():

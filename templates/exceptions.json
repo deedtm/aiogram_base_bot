@@ -1,5 +1,12 @@
 {
     "base": "❗️  An error has occurred:\n\n<pre>{}</pre>",
     "no_data": "😢  I don't have such information",
-    "retry": "🔄  Try again, please"
+    "retry": "🔄  Try again, please",
+    "no_args": "⭕️  No arguments provided",
+    "wrong_args": "❌  Wrong arguments provided",
+    "user_not_found": "🔎  User not found",
+    "low_access": "🔒  You don't have enough access to do this",
+    "low_access_to_set": "🔒  You cannot change the access level of a user whose access level is greater than or equal to yours",
+    "own_access": "🔒  You cannot change your own access level",
+    "over_access_set": "🔒  You cannot set an access level greater than or equal to yours"
 }

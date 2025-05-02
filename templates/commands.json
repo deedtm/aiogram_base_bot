@@ -24,5 +24,15 @@
         "last_name": "👤  My last name is <code>{}</code>",
         "language_code": "🌐  My language code is <code>{}</code>",
         "url": "🔗  My profile URL is {}"
+    },
+    "admin": {
+        "general": "🥑  <b>Admin panel</b>\n\n{}",
+        "commands_list_fmt": "<i>{command} {args}</i>— {description}",
+        "users": "👤  <b>Users</b>\n\n{}\n\n<b>Total: {}</b>\n<i>Enter the user's first name to find them</i>",
+        "users_list_fmt": "<b>{id}.</b> {name} — <code>{user_id}</code>",
+        "random_users": "🤹  Added {} users",
+        "getuser": "👤  <b>User</b>\n\n{}",
+        "user_fmt": "<b>{}</b>: {}",
+        "access": "🔑  Changed access <b>{}</b> ➝ <b>{}</b> for <i>{}</i>"
     }
 }

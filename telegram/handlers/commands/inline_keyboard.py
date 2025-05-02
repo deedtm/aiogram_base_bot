@@ -9,7 +9,7 @@ from templates.enums.exceptions import Exceptions as tmpl_ex
 
 from ...objects import router
 from ...keyboards.inline.inline_keyboard import general
-from ...keyboards.inline.utils import back_kb as back
+from ...keyboards.inline.__utils import back_kb as back
 from ...keyboards.inline.types.extended_callback import ExtendedCallback
 
 # from .log import logger as l
