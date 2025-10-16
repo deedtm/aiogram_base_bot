@@ -1,4 +1,4 @@
-from aiogram.types import KeyboardButton, User
+from aiogram.types import KeyboardButton
 from .utils import build
 
 

@@ -1,17 +1,17 @@
 from typing import Optional
+
 from aiogram import F
-from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
+from aiogram.types import CallbackQuery, Message
 
-from config.telegram import BACK_PREFIX as BP
-from templates.enums.commands import Commands as tmpl
-from templates.enums.exceptions import Exceptions as tmpl_ex
+from templates import COMMANDS as tmpl
+from templates import EXCEPTIONS as tmpl_ex
 
-from ...objects import router
-from ...keyboards.inline.inline_keyboard import general, back
+from ...config import BACK_PREFIX as BP
+from ...keyboards.inline.__utils import back_kb as back
+from ...keyboards.inline.inline_keyboard import general
 from ...keyboards.inline.types.extended_callback import ExtendedCallback
-
-# from .log import logger as l
+from ...objects import router
 
 
 @router.message(Command("inline_keyboard"))
@@ -23,7 +23,7 @@ async def ik_handler(msg: Message, wmsg: Optional[Message] = None):
 
 
 @router.callback_query(F.data.split("<")[-1].startswith("ik"))
-async def ik_cb(q: CallbackQuery):
+async def ik_callback(q: CallbackQuery):
     msg, cbd = q.message, q.data.split("<")[-1].split(":", 1)[1]
     bc = ExtendedCallback("ik:general", "General", BP)
 

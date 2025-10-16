@@ -1,6 +1,5 @@
-from aiogram.types import User
+from aiogram.types import User as TGUser
 
 
-def get_user_identificator(user: User):
-    return '@' + user.username if user.username else user.id    
-    
+def get_username_or_user_id(user: TGUser):
+    return "@" + user.username if user.username else user.id

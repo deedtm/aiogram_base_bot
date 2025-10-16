@@ -46,3 +46,9 @@ Your template will be converted to a dataclass in `templates/enums/your_template
 
 > [!TIP]
 > Templates are processed before other code executes, so you can safely import your template classes at the top of your files.
+
+
+
+## Branches
+
+You can find extended functional in branches
