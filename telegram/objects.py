@@ -1,4 +1,5 @@
 from aiogram import Router
+
 from .middlewares.general import GeneralMW
 
 router = Router()

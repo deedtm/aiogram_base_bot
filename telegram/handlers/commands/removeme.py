@@ -1,9 +1,9 @@
 from aiogram import F
-from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
+from aiogram.types import CallbackQuery, Message
 
 from database.utils import delete_user
-from templates.enums.commands import Commands as tmpl
+from templates import COMMANDS as tmpl
 
 from ...keyboards.inline.removeme import kb
 from ...objects import router

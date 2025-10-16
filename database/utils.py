@@ -1,15 +1,19 @@
-from .constants import DATETIME_FORMAT
-from .log import logger
-from config.time import TZ
-from aiogram.types import User as TgUser
-from datetime import datetime
-from html import escape
-from .connect import init_db, get_session, Base
-from .models import User as DBUser
-from sqlalchemy import select, func
-from sqlalchemy import update as sqlalchemy_update, delete as sqlalchemy_delete
 import random
 import string
+from datetime import datetime
+from html import escape
+
+from aiogram.types import User as TgUser
+from loguru import logger
+from sqlalchemy import delete as sqlalchemy_delete
+from sqlalchemy import func, select
+from sqlalchemy import update as sqlalchemy_update
+
+from config import TZ
+
+from .config import DATETIME_FORMAT
+from .connect import Base, get_session, init_db
+from .models import User as DBUser
 
 
 async def init_schemas():
@@ -22,15 +26,14 @@ async def init_schemas():
     return table_names
 
 
-async def get_all_users(count: int, start_id: int = 0) -> list[DBUser]:
+async def get_users(count: int = 0, start_id: int = 0) -> list[DBUser]:
     """Return a list of `count` users starting from users with id >= `start_id`."""
-    if count <= 0:
-        return []
     async for session in get_session():
         stmt = select(DBUser)
         stmt = stmt.where(DBUser.id >= start_id)
         stmt = stmt.order_by(DBUser.id)
-        stmt = stmt.limit(count)
+        if count > 0:
+            stmt = stmt.limit(count)
         result = await session.execute(stmt)
         return result.scalars().all()
     return []
@@ -53,11 +56,10 @@ async def get_user(
 
 async def add_user(user: TgUser) -> DBUser:
     """Add a new user to the database or return existing"""
-    # Сначала проверяем, есть ли пользователь в БД
     existing = await get_user(user.id)
     if existing:
         return existing
-    # Иначе создаём нового
+
     async for session in get_session():
         new_user = DBUser(
             user_id=user.id,
@@ -73,61 +75,6 @@ async def add_user(user: TgUser) -> DBUser:
         return new_user
 
 
-async def get_user_data(
-    user_id: int | None = None, first_name: str | None = None
-) -> dict | list[dict] | None:
-    """Return all user data as a dict, a list of dicts, or None if not found"""
-    users = await get_user(user_id, first_name)
-    if not users:
-        return None
-
-    def to_dict(u: DBUser) -> dict:
-        return {
-            "id": u.id,
-            "user_id": u.user_id,
-            "username": u.username,
-            "first_name": u.first_name,
-            "last_name": u.last_name,
-            "register_date": u.register_date,
-            "access_level": u.access_level,
-        }
-
-    if isinstance(users, list):
-        return [to_dict(u) for u in users]
-
-    return to_dict(users)
-
-
-async def get_username(user_id: int) -> str | None:
-    """Return the user's username or None"""
-    user = await get_user(user_id)
-    return user.username if user else None
-
-
-async def get_first_name(user_id: int) -> str | None:
-    """Return the user's first name or None"""
-    user = await get_user(user_id)
-    return user.first_name if user else None
-
-
-async def get_last_name(user_id: int) -> str | None:
-    """Return the user's last name or None"""
-    user = await get_user(user_id)
-    return user.last_name if user else None
-
-
-async def get_register_date(user_id: int) -> str | None:
-    """Return the user's registration date or None"""
-    user = await get_user(user_id)
-    return user.register_date if user else None
-
-
-async def get_access_level(user_id: int) -> int | None:
-    """Return the user's access level or None"""
-    user = await get_user(user_id)
-    return user.access_level if user else None
-
-
 async def update_user_data(user_id: int, **fields) -> bool:
     """Update user fields, return True if updated, False if user not found"""
     async for session in get_session():
@@ -139,26 +86,6 @@ async def update_user_data(user_id: int, **fields) -> bool:
             logger.debug(f"User {user_id} updated fields {list(fields.keys())}")
             return True
         return False
-
-
-async def set_username(user_id: int, username: str) -> bool:
-    """Set the user's username"""
-    return await update_user_data(user_id, username=username)
-
-
-async def set_first_name(user_id: int, first_name: str) -> bool:
-    """Set the user's first name"""
-    return await update_user_data(user_id, first_name=first_name)
-
-
-async def set_last_name(user_id: int, last_name: str) -> bool:
-    """Set the user's last name"""
-    return await update_user_data(user_id, last_name=last_name)
-
-
-async def set_access_level(user_id: int, access_level: int) -> bool:
-    """Set the user's access level"""
-    return await update_user_data(user_id, access_level=access_level)
 
 
 async def delete_user(user_id: int) -> bool:

@@ -4,14 +4,14 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.exceptions import TelegramAPIError
-from aiogram.types import Message, CallbackQuery, Update
+from aiogram.types import CallbackQuery, Message, Update
+from loguru import logger as l
 
 from database.utils import add_user
-from templates.enums.middlewares import Middlewares as tmpl_mw
-from templates.enums.exceptions import Exceptions as tmpl_ex
+from templates import EXCEPTIONS as tmpl_ex
+from templates import MIDDLEWARES as tmpl_mw
 
 from ..enums.middlewares import Middlewares
-from ..log import l
 
 
 class GeneralMW(BaseMiddleware):

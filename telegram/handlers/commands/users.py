@@ -1,20 +1,18 @@
-import itertools
-
 from aiogram import F
-from aiogram.types import Message, CallbackQuery, MessageEntity
 from aiogram.filters.command import Command, CommandObject
 from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message
 
-from config.telegram import USERS_LIST_AMOUNT as USERS_AMOUNT
-from database.utils import get_all_users, add_random_users, get_last_user_id, get_user
 from database.models import User
-from templates.enums.commands import Commands as tmpl
-from templates.enums.exceptions import Exceptions as tmpl_ex
+from database.utils import add_random_users, get_last_user_id, get_user, get_users
+from templates import COMMANDS as tmpl
+from templates import EXCEPTIONS as tmpl_ex
 
+from ...config import USERS_LIST_AMOUNT as USERS_AMOUNT
 from ...filters.access_level import AccessLevelFilter
-from ...objects import router
-from ...utils import get_user_hyperlink
+from ...hyperlinks import user_hyperlink
 from ...keyboards.inline.users import kb
+from ...objects import router
 from ...states.users import UsersState
 
 
@@ -22,16 +20,17 @@ def parse_users(users: list[User]):
     fmt = tmpl.admin.users_list_fmt
     output = []
     for u in users:
-        name = get_user_hyperlink(u)
+        name = user_hyperlink(u)
         output.append(fmt.format(id=u.id, name=name, user_id=u.user_id))
     return output
 
 
 def split_html(text: str) -> list[str]:
     max_len = 2048
-    
+
     def u16len(s: str) -> int:
-        return len(s.encode('utf-16-le')) // 2
+        return len(s.encode("utf-16-le")) // 2
+
     parts, buffer = [], ""
     for line in text.splitlines(keepends=True):
         if u16len(buffer + line) > max_len:
@@ -57,17 +56,17 @@ async def users_handler(
     total = await get_last_user_id()
     await state.update_data(total_users=total)
 
-    users = await get_all_users(USERS_AMOUNT)
+    users = await get_users(USERS_AMOUNT)
     id_range = [users[0].id, users[-1].id] if users else [1, USERS_AMOUNT]
     await state.update_data(users=users)
 
-    prev_users = await get_all_users(USERS_AMOUNT, total - USERS_AMOUNT + 1)
+    prev_users = await get_users(USERS_AMOUNT, total - USERS_AMOUNT + 1)
     prev_id_range = (
         [prev_users[0].id, prev_users[-1].id] if prev_users else [1, USERS_AMOUNT]
     )
     await state.update_data(prev_users=prev_users)
 
-    next_users = await get_all_users(USERS_AMOUNT, id_range[1] + 1)
+    next_users = await get_users(USERS_AMOUNT, id_range[1] + 1)
     next_id_range = (
         [next_users[0].id, next_users[-1].id] if next_users else [1, USERS_AMOUNT]
     )
@@ -106,7 +105,7 @@ async def users_move_callback(q: CallbackQuery, state: FSMContext):
             if difference < 0:
                 id_range[0], subtracted = total, 0
                 difference = id_range[0] - subtracted
-            prev_users = await get_all_users(USERS_AMOUNT, difference)
+            prev_users = await get_users(USERS_AMOUNT, difference)
             prev_id_range = (
                 [prev_users[0].id, prev_users[-1].id]
                 if prev_users
@@ -127,7 +126,7 @@ async def users_move_callback(q: CallbackQuery, state: FSMContext):
             if sm > total:
                 id_range[1], summand = 1, 0
                 sm = id_range[1] + summand + 1
-            next_users = await get_all_users(USERS_AMOUNT, sm)
+            next_users = await get_users(USERS_AMOUNT, sm)
             next_id_range = (
                 [next_users[0].id, next_users[-1].id]
                 if next_users
@@ -153,7 +152,7 @@ async def search_handler(msg: Message, wmsg: Message):
     text = tmpl.admin.users.format("\n".join(parsed), len(parsed))
     parts = split_html(text)
     await wmsg.edit_text(parts[0])
-        
+
     for part in parts[1:]:
         await wmsg.answer(part)
 

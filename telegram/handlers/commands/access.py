@@ -1,9 +1,9 @@
 from aiogram.types import Message
 from aiogram.filters.command import Command, CommandObject
 
-from database.utils import set_access_level, get_user
-from templates.enums.commands import Commands as tmpl
-from templates.enums.exceptions import Exceptions as tmpl_ex
+from database.utils import update_user_data, get_user
+from templates import COMMANDS as tmpl
+from templates import EXCEPTIONS as tmpl_ex
 
 from ...filters.access_level import AccessLevelFilter
 from ...objects import router
@@ -44,7 +44,7 @@ async def access_handler(msg: Message, command: CommandObject, wmsg: Message):
         await wmsg.edit_text(tmpl_ex.over_access_set)
         return
 
-    await set_access_level(user_id, access_level)
+    await update_user_data(user_id, access_level=access_level)
 
     full_name = (user.first_name + " " + (user.last_name or "")).strip()
     text = tmpl.admin.access.format(user.access_level, access_level, full_name)

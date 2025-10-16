@@ -1,16 +1,13 @@
-from aiogram import F
-from aiogram.types import Message, BotCommand
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.types import BotCommand, Message
 
-from templates.enums.commands import Commands as tmpl
-from templates.enums.exceptions import Exceptions as tmpl_ex
+from templates import COMMANDS as tmpl
+from templates import EXCEPTIONS as tmpl_ex
 
-from ...objects import router
 from ...keyboards.reply.keyboard import general
+from ...objects import router
 from ...states.keyboard import KeyboardState
-
-# from .log import logger as l
 
 
 @router.message(Command("keyboard"))

@@ -1,7 +1,7 @@
-from aiogram.types import Message, BotCommand
 from aiogram.filters import CommandStart
+from aiogram.types import BotCommand, Message
 
-from templates.enums.commands import Commands as tmpl
+from templates import COMMANDS as tmpl
 
 from ...objects import router
 
