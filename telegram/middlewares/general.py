@@ -55,20 +55,28 @@ class GeneralMW(BaseMiddleware):
         data: Dict[str, Any],
     ) -> Any:
         is_callback = isinstance(event, CallbackQuery)
-        wmsg = await event.answer(tmpl_mw.wait_message)
+        wmsg = None
 
         if not is_callback:
+            params = data["handler"].params
+            wmsg_literal = None
+            for lit in Middlewares.WAIT_MESSAGE_LITERALS:
+                if lit in params:
+                    wmsg_literal = lit
+                    break
+
+            if wmsg_literal is not None:
+                wmsg = await event.answer(tmpl_mw.wait_message)
+                data[wmsg_literal] = wmsg
+
             context = data["state"]
             state = await context.get_state()
             if state is not None and event.text.startswith("/"):
                 await context.clear()
-                await wmsg.edit_text(tmpl_ex.retry)
+                if wmsg_literal is not None:
+                    await wmsg.edit_text(tmpl_ex.retry)
+                else:
+                    await event.answer(tmpl_ex.retry)
                 return
-
-            params = data["handler"].params
-            for lit in Middlewares.WAIT_MESSAGE_LITERALS:
-                if lit in params:
-                    data[lit] = wmsg
-                    break
 
         return await self.wrapper(handler, event, data, wmsg)

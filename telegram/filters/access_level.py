@@ -11,4 +11,6 @@ class AccessLevelFilter(BaseFilter):
     async def __call__(self, update: Update) -> bool:
         user_id = update.from_user.id
         user = await get_user(user_id)
+        if user is None:
+            return False
         return user.access_level >= self.level
