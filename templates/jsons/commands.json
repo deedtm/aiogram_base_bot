@@ -34,5 +34,13 @@
         "getuser": "👤  <b>User</b>\n\n{}",
         "user_fmt": "<b>{}</b>: {}",
         "access": "🔑  Changed access <b>{}</b> ➝ <b>{}</b> for <i>{}</i>"
+    },
+    "quiz": {
+        "start": "📝  You've started the quiz. Answer the questions below.\n\n📊  All information will be saved in the database.",
+        "color": "🎨  What is your favorite color?",
+        "food": "🍽️  What is your favorite food?",
+        "work": "💼  What is your profession?",
+        "pet": "🐾  What is your favorite pet?",
+        "end": "✅  You've completed the quiz! Here are your answers:\n\n🎨  Favorite color: <b>{}</b>\n🍽️  Favorite food: <b>{}</b>\n💼  Profession: <b>{}</b>\n🐾  Favorite pet: <b>{}</b>\n\n📊  Your information has been saved in the database."
     }
 }
