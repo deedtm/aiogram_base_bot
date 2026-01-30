@@ -4,18 +4,25 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.exceptions import TelegramAPIError
-from aiogram.types import CallbackQuery, Message, Update
+from aiogram.types import CallbackQuery, Message, Update, User
 from loguru import logger as l
 
-from database.utils import add_user
+from database.crud_managers import user_crud
 from templates import EXCEPTIONS as tmpl_ex
 from templates import MIDDLEWARES as tmpl_mw
 
+from ..config import USERS_ACCESSES
 from ..enums.middlewares import Middlewares
 
 
 class GeneralMW(BaseMiddleware):
     def __init__(self) -> None: ...
+
+    async def _parse_user(self, event: Update):
+        from_user = getattr(event, "from_user", None)
+        if not from_user and (message := getattr(event, "message", None)):
+            from_user = getattr(message, "from_user", None)
+        return from_user
 
     async def wrapper(
         self,
@@ -27,8 +34,10 @@ class GeneralMW(BaseMiddleware):
         err = None
         ok = False
         try:
-            if isinstance(event, Message):
-                await add_user(event.from_user)
+            u = await self._parse_user(event)
+            if isinstance(u, User):
+                await user_crud.add_from_tg_user(u, USERS_ACCESSES.get(u.id, 1))
+
             await handler(event, data)
             ok = True
         except TelegramAPIError as e:
@@ -71,7 +80,7 @@ class GeneralMW(BaseMiddleware):
 
             context = data["state"]
             state = await context.get_state()
-            if state is not None and event.text.startswith("/"):
+            if state is not None and event.text and event.text.startswith("/"):
                 await context.clear()
                 if wmsg_literal is not None:
                     await wmsg.edit_text(tmpl_ex.retry)
