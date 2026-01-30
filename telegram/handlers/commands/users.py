@@ -3,11 +3,11 @@ from aiogram.filters.command import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
-from database.models import User
-from database.utils import add_random_users, get_last_user_id, get_user, get_users
+from database.crud_managers import User, user_crud
 from templates import COMMANDS as tmpl
-from templates import EXCEPTIONS as tmpl_ex
+from templates import EXCEPTIONS as tex
 
+from ...config import ACCESSES
 from ...config import USERS_LIST_AMOUNT as USERS_AMOUNT
 from ...filters.access_level import AccessLevelFilter
 from ...hyperlinks import user_hyperlink
@@ -49,24 +49,26 @@ def split_html(text: str) -> list[str]:
     return parts
 
 
-@router.message(AccessLevelFilter(2), Command("users"))
+@router.message(AccessLevelFilter(ACCESSES["moderator"]), Command("users"))
 async def users_handler(
     msg: Message, command: CommandObject, wmsg: Message, state: FSMContext
 ):
-    total = await get_last_user_id()
+    total = len(await user_crud.get_all())
     await state.update_data(total_users=total)
 
-    users = await get_users(USERS_AMOUNT)
+    users = await user_crud.get_all(count=USERS_AMOUNT)
     id_range = [users[0].id, users[-1].id] if users else [1, USERS_AMOUNT]
     await state.update_data(users=users)
 
-    prev_users = await get_users(USERS_AMOUNT, total - USERS_AMOUNT + 1)
+    prev_users = await user_crud.get_all(
+        count=USERS_AMOUNT, start_id=total - USERS_AMOUNT + 1
+    )
     prev_id_range = (
         [prev_users[0].id, prev_users[-1].id] if prev_users else [1, USERS_AMOUNT]
     )
     await state.update_data(prev_users=prev_users)
 
-    next_users = await get_users(USERS_AMOUNT, id_range[1] + 1)
+    next_users = await user_crud.get_all(count=USERS_AMOUNT, start_id=id_range[1] + 1)
     next_id_range = (
         [next_users[0].id, next_users[-1].id] if next_users else [1, USERS_AMOUNT]
     )
@@ -80,7 +82,9 @@ async def users_handler(
     await state.set_state(UsersState.search)
 
 
-@router.callback_query(AccessLevelFilter(2), F.data.startswith("users:move"))
+@router.callback_query(
+    AccessLevelFilter(ACCESSES["moderator"]), F.data.startswith("users:move")
+)
 async def users_move_callback(q: CallbackQuery, state: FSMContext):
     destination = q.data.split(":")[-1]
 
@@ -105,7 +109,9 @@ async def users_move_callback(q: CallbackQuery, state: FSMContext):
             if difference < 0:
                 id_range[0], subtracted = total, 0
                 difference = id_range[0] - subtracted
-            prev_users = await get_users(USERS_AMOUNT, difference)
+            prev_users = await user_crud.get_all(
+                count=USERS_AMOUNT, start_id=difference
+            )
             prev_id_range = (
                 [prev_users[0].id, prev_users[-1].id]
                 if prev_users
@@ -126,7 +132,7 @@ async def users_move_callback(q: CallbackQuery, state: FSMContext):
             if sm > total:
                 id_range[1], summand = 1, 0
                 sm = id_range[1] + summand + 1
-            next_users = await get_users(USERS_AMOUNT, sm)
+            next_users = await user_crud.get_all(count=USERS_AMOUNT, start_id=sm)
             next_id_range = (
                 [next_users[0].id, next_users[-1].id]
                 if next_users
@@ -142,11 +148,11 @@ async def users_move_callback(q: CallbackQuery, state: FSMContext):
     await q.message.edit_text(text, reply_markup=kb(USERS_AMOUNT, total, **ranges))
 
 
-@router.message(AccessLevelFilter(2), UsersState.search)
+@router.message(AccessLevelFilter(ACCESSES["moderator"]), UsersState.search)
 async def search_handler(msg: Message, wmsg: Message):
     first_name = msg.text
 
-    dbusers = await get_user(first_name=first_name)
+    dbusers = await user_crud.get_all(first_name=first_name)
     parsed = parse_users(dbusers)
 
     text = tmpl.admin.users.format("\n".join(parsed), len(parsed))
@@ -155,17 +161,3 @@ async def search_handler(msg: Message, wmsg: Message):
 
     for part in parts[1:]:
         await wmsg.answer(part)
-
-
-@router.message(AccessLevelFilter(3), Command("random_users"))
-async def random_users_handler(msg: Message, command: CommandObject, wmsg: Message):
-    if not command.args:
-        await wmsg.edit_text(tmpl_ex.no_args)
-        return
-    args = command.args.split()
-    amount = int(args[0])
-    if len(args) == 2:
-        first_name = args[1]
-    await add_random_users(amount, first_name)
-    text = tmpl.admin.random_users.format(amount)
-    await wmsg.edit_text(text)

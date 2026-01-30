@@ -16,7 +16,15 @@ DEFAULT_BOT_PROPERTIES = DefaultBotProperties(
 BACK_PREFIX = cfg.get("telegram", "back_prefix")
 USERS_LIST_AMOUNT = cfg.getint("telegram", "users_list_amount")
 
+
+ACCESSES = {k: int(v) for k, v in cfg.items("accesses")}
+
 TOKEN = os.getenv("BOT_TOKEN")
+_RAW_ACCESSES = os.getenv("ACCESSES")
+USERS_ACCESSES = {
+    int(k): ACCESSES.get(v.lower(), 0)
+    for k, v in (u.split(":") for u in _RAW_ACCESSES.split())
+}
 ######### [config.ini]
 
 USERNAME_LINK_FORMAT = "https://t.me/{username}"

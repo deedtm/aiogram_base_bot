@@ -1,5 +1,3 @@
-import random
-import string
 from datetime import datetime
 from html import escape
 
@@ -11,7 +9,6 @@ from sqlalchemy import update as sqlalchemy_update
 
 from config import TZ
 
-from .config import DATETIME_FORMAT
 from .connect import Base, get_session, init_db
 from .models import User as DBUser
 
@@ -26,11 +23,22 @@ async def init_schemas():
     return table_names
 
 
-async def get_users(count: int = 0, start_id: int = 0) -> list[DBUser]:
-    """Return a list of `count` users starting from users with id >= `start_id`."""
+async def get_users(
+    count: int = 0,
+    start_id: int = 0,
+    min_access_level: int | None = None,
+    max_access_level: int | None = None,
+) -> list[DBUser]:
+    """
+    Return a list of `count` users starting from users with id >= `start_id`.
+    Optionally filter by minimum and/or maximum access_level.
+    """
     async for session in get_session():
-        stmt = select(DBUser)
-        stmt = stmt.where(DBUser.id >= start_id)
+        stmt = select(DBUser).where(DBUser.id >= start_id)
+        if min_access_level is not None:
+            stmt = stmt.where(DBUser.access_level >= min_access_level)
+        if max_access_level is not None:
+            stmt = stmt.where(DBUser.access_level <= max_access_level)
         stmt = stmt.order_by(DBUser.id)
         if count > 0:
             stmt = stmt.limit(count)
@@ -54,7 +62,7 @@ async def get_user(
     return None
 
 
-async def add_user(user: TgUser) -> DBUser:
+async def add_user(user: TgUser, access_level: int = 1) -> DBUser:
     """Add a new user to the database or return existing"""
     existing = await get_user(user.id)
     if existing:
@@ -66,12 +74,17 @@ async def add_user(user: TgUser) -> DBUser:
             username=user.username,
             first_name=escape(user.first_name),
             last_name=escape(user.last_name) if user.last_name else None,
-            register_date=datetime.now(TZ).strftime(DATETIME_FORMAT),
+            register_date=int(datetime.now(TZ).timestamp()),
+            access_level=access_level,
+            nickname=user.full_name,
+            anonymous=True,
         )
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
-        logger.debug(f"User {user.id} added as ORM record")
+        logger.debug(
+            f"User {user.id} added: {', '.join(f'{k}={v}' for k, v in new_user.as_dict.items())}"
+        )
         return new_user
 
 
@@ -99,33 +112,6 @@ async def delete_user(user_id: int) -> bool:
             logger.debug(f"User {user_id} deleted")
             return True
         return False
-
-
-async def add_random_users(count: int, first_name: str | None = None) -> list[DBUser]:
-    """Add specified number of randomly generated users to the database."""
-    users: list[DBUser] = []
-    async for session in get_session():
-        for _ in range(count):
-            user_id = random.randint(1000000000, 9999999999)
-            username = "".join(random.choices(string.ascii_lowercase, k=8))
-            if not first_name:
-                first_name = "".join(random.choices(string.ascii_letters, k=6))
-            last_name = "".join(random.choices(string.ascii_letters, k=6))
-            reg_date = datetime.now(TZ).strftime(DATETIME_FORMAT)
-            new_user = DBUser(
-                user_id=user_id,
-                username=username,
-                first_name=escape(first_name),
-                last_name=escape(last_name),
-                register_date=reg_date,
-            )
-            session.add(new_user)
-            users.append(new_user)
-        await session.commit()
-        for u in users:
-            await session.refresh(u)
-        return users
-    return users
 
 
 async def get_last_user_id() -> int | None:

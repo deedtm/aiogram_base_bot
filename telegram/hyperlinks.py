@@ -1,7 +1,7 @@
 from aiogram.types import User as TGUser
 
 from database.models import User as DBUser
-from hyperlinks import hyperlink
+from utils.hyperlinks import hyperlink
 
 from .config import CHANNEL_ID_LINK_FORMAT as CHANNEL_ID_FMT
 from .config import CHANNEL_ID_POST_LINK_FORMAT as POST_ID_FMT

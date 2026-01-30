@@ -5,6 +5,13 @@ drop_pending_updates = 1
 back_prefix = ↩️
 users_list_amount = 10
 
+[accesses]
+owner = 50
+admin = 20
+moderator = 10
+user = 1
+banned = 0
+
 [time]
 timezone_offset = 4
 
