@@ -9,7 +9,7 @@ from .commands.quiz import quiz_end, quiz_input_handler, quiz_start_handler
 from .commands.removeme import removeme_callback, removeme_handler
 from .commands.start import start_handler
 from .commands.users import users_handler, users_move_callback
-
+from .commands._html_mode import htmlmode_handler, htmlmode_state
 __all__ = [
     # "message_handler",
     "start_handler",
@@ -28,4 +28,6 @@ __all__ = [
     "quiz_start_handler",
     "quiz_input_handler",
     "quiz_end",
+    "htmlmode_handler",
+    "htmlmode_state",
 ]
