@@ -1,0 +1,24 @@
+[project]
+name = "aiogram-base-bot"
+version = "3.0.0"
+description = "Template for Telegram bots built with aiogram 3, providing a structured foundation for your bot development."
+authors = [
+    {name = "deedtm",email = "you@example.com"}
+]
+license = {text = "GNU General Public License v3.0"}
+readme = "README.md"
+requires-python = ">=3.10,<3.15"
+dependencies = [
+    "aiogram (>=3.24.0,<4.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "sqlalchemy (>=2.0.46,<3.0.0)",
+    "asyncpg (>=0.31.0,<0.32.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -11,7 +11,7 @@ class User(Base):
     username = Column(Text, nullable=True)
     first_name = Column(Text, nullable=True)
     last_name = Column(Text, nullable=True)
-    register_date = Column(Text, nullable=True)
+    register_date = Column(Integer, nullable=True)
     access_level = Column(Integer, default=1, nullable=False)
     favorite_color = Column(Text, nullable=True)
     favorite_food = Column(Text, nullable=True)

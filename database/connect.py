@@ -1,16 +1,11 @@
-import os
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
-from .config import DB_PATH
+from .config import USER, PASSWORD, HOST, PORT, DB_NAME
 
-dirpath = os.path.dirname(DB_PATH)
-if dirpath:
-    os.makedirs(dirpath, exist_ok=True)
-
-DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+DATABASE_URL = f"postgresql+asyncpg://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
